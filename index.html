@@ -1,155 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Ship Production Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #38bdf8;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 6px;
-      margin-top: 4px;
-      border-radius: 6px;
-      border: none;
-      background: #1e293b;
-      color: white;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 15px;
-      background: #38bdf8;
-      color: #0f172a;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-    }
-    button:hover {
-      background: #7dd3fc;
-    }
-    .result {
-      background: #1e293b;
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 8px;
-      line-height: 1.6;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Online 2 - Calculadora de Naves</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0b0e2e;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+  }
+  h1 {
+    color: #00b4ff;
+  }
+  input {
+    width: 120px;
+    padding: 5px;
+    margin: 5px;
+    text-align: right;
+    background: #1a1e55;
+    border: 1px solid #333;
+    color: white;
+  }
+  table {
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #141845;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    border: 1px solid #2a2e65;
+    padding: 10px 15px;
+  }
+  th {
+    background: #1a1e55;
+  }
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #0077ff;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  button:hover {
+    background: #0099ff;
+  }
+  #result {
+    margin-top: 20px;
+    font-size: 18px;
+  }
+</style>
 </head>
 <body>
+  <h1>🚀 Calculadora de Naves - Galaxy Online 2</h1>
 
-  <h1>🚀 Ship Production Calculator</h1>
+  <table>
+    <tr><th>Recurso</th><th>Disponible</th><th>Costo por nave</th></tr>
+    <tr>
+      <td>Metal</td>
+      <td><input type="number" id="metal" value="10_000_000"></td>
+      <td><input type="number" id="costMetal" value="2_000"></td>
+    </tr>
+    <tr>
+      <td>He3</td>
+      <td><input type="number" id="he3" value="5_000_000"></td>
+      <td><input type="number" id="costHe3" value="1_000"></td>
+    </tr>
+    <tr>
+      <td>Gold</td>
+      <td><input type="number" id="gold" value="500_000"></td>
+      <td><input type="number" id="costGold" value="100"></td>
+    </tr>
+    <tr>
+      <td>Tiempo base (minutos)</td>
+      <td colspan="2"><input type="number" id="baseTime" value="10"></td>
+    </tr>
+  </table>
 
-  <label>Metal available</label>
-  <input type="number" id="metal" value="1000">
+  <button onclick="calcular()">Calcular Producción</button>
 
-  <label>He3 available</label>
-  <input type="number" id="he3" value="300">
+  <div id="result"></div>
 
-  <label>Gold available</label>
-  <input type="number" id="gold" value="50">
+<script>
+function formatNumber(num) {
+  return num.toLocaleString("es-ES");
+}
 
-  <label>Metal cost per ship</label>
-  <input type="number" id="metalCost" value="200">
+function calcular() {
+  const metal = +document.getElementById("metal").value;
+  const he3 = +document.getElementById("he3").value;
+  const gold = +document.getElementById("gold").value;
+  const costMetal = +document.getElementById("costMetal").value;
+  const costHe3 = +document.getElementById("costHe3").value;
+  const costGold = +document.getElementById("costGold").value;
+  const baseTime = +document.getElementById("baseTime").value;
 
-  <label>He3 cost per ship</label>
-  <input type="number" id="he3Cost" value="400">
+  const maxMetal = Math.floor(metal / costMetal);
+  const maxHe3 = Math.floor(he3 / costHe3);
+  const maxGold = Math.floor(gold / costGold);
 
-  <label>Gold cost per ship</label>
-  <input type="number" id="goldCost" value="10">
+  const totalShips = Math.min(maxMetal, maxHe3, maxGold);
 
-  <label>Conversion rate (metal ↔ he3)</label>
-  <input type="number" id="conversionRate" step="0.01" value="0.75">
+  let limitante = "";
+  if (totalShips === maxMetal) limitante = "Metal";
+  else if (totalShips === maxHe3) limitante = "He3";
+  else limitante = "Gold";
 
-  <label>Build slots</label>
-  <input type="number" id="buildSlots" value="5">
+  const slots = 5;
+  const shipsPerSlot = Math.floor(totalShips / slots);
+  const remainder = totalShips % slots;
 
-  <label>Build time per ship (seconds)</label>
-  <input type="number" id="buildTime" value="120">
+  let html = `
+    <h2>Resultados</h2>
+    <p>Recurso limitante: <b style="color:#00b4ff">${limitante}</b></p>
+    <p>Total de naves posibles: <b>${formatNumber(totalShips)}</b></p>
+    <p>Distribución en ${slots} slots:</p>
+    <table>
+      <tr><th>Slot</th><th>Naves</th><th>Tiempo (minutos)</th></tr>
+  `;
 
-  <button onclick="calculate()">Calculate</button>
+  for (let i = 1; i <= slots; i++) {
+    const naves = shipsPerSlot + (i <= remainder ? 1 : 0);
+    const tiempo = baseTime * naves;
+    html += `<tr>
+      <td>${i}</td>
+      <td>${formatNumber(naves)}</td>
+      <td>${formatNumber(tiempo)}</td>
+    </tr>`;
+  }
 
-  <div class="result" id="result"></div>
+  html += "</table>";
 
-  <script>
-    function calculate() {
-      const metal = parseFloat(document.getElementById('metal').value);
-      const he3 = parseFloat(document.getElementById('he3').value);
-      const gold = parseFloat(document.getElementById('gold').value);
-
-      const metalCost = parseFloat(document.getElementById('metalCost').value);
-      const he3Cost = parseFloat(document.getElementById('he3Cost').value);
-      const goldCost = parseFloat(document.getElementById('goldCost').value);
-
-      const convRate = parseFloat(document.getElementById('conversionRate').value);
-      const buildSlots = parseInt(document.getElementById('buildSlots').value);
-      const buildTime = parseFloat(document.getElementById('buildTime').value);
-
-      // Solve for X: (metal - X)/metalCost = (he3 + X*convRate)/he3Cost
-      const X = (metal / metalCost - he3 / he3Cost) /
-                (1.0 / metalCost + convRate / he3Cost);
-
-      const finalMetal = metal - X;
-      const finalHe3 = he3 + X * convRate;
-
-      let strategy;
-      if (X > 0) {
-        strategy = `Convert ${X.toFixed(2)} metal to he3.`;
-      } else if (X < 0) {
-        strategy = `Convert ${(-X).toFixed(2)} he3 to metal.`;
-      } else {
-        strategy = "No conversion needed.";
-      }
-
-      const ships = Math.floor(Math.min(
-        finalMetal / metalCost,
-        finalHe3 / he3Cost,
-        gold / goldCost
-      ));
-
-      const limitMetal = finalMetal / metalCost;
-      const limitHe3 = finalHe3 / he3Cost;
-      const limitGold = gold / goldCost;
-
-      let limiting;
-      if (limitGold <= limitMetal && limitGold <= limitHe3) limiting = "Gold";
-      else if (limitMetal <= limitHe3) limiting = "Metal";
-      else limiting = "He3";
-
-      const totalBatches = Math.ceil(ships / buildSlots);
-      const totalTime = totalBatches * buildTime;
-
-      const minutes = Math.floor(totalTime / 60);
-      const seconds = Math.floor(totalTime % 60);
-
-      document.getElementById('result').innerHTML = `
-        <strong>You can build:</strong> ${ships} ships<br>
-        <strong>Strategy:</strong> ${strategy}<br>
-        <strong>Limiting resource:</strong> ${limiting}<br>
-        <strong>Build slots:</strong> ${buildSlots}<br>
-        <strong>Build time per ship:</strong> ${buildTime} sec<br>
-        <strong>Total build time:</strong> ${totalTime.toFixed(2)} sec (${minutes}m ${seconds}s)
-      `;
-    }
-  </script>
+  document.getElementById("result").innerHTML = html;
+}
+</script>
 </body>
 </html>
